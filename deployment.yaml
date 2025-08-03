@@ -1,0 +1,23 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: money-bot
+  namespace: money-bot
+  labels:
+    app: money-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: money-bot
+  template:
+    metadata:
+      labels:
+        app: money-bot
+    spec:
+      containers:
+        - name: money-bot
+          image: money-bot:v1.0.0
+          ports:
+            - containerPort: 5000
