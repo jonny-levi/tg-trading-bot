@@ -18,6 +18,6 @@ spec:
     spec:
       containers:
         - name: money-bot
-          image: money-bot:v1.0.0
+          image: 172.20.10.103:5000/moneyboy:v1.0.0
           ports:
-            - containerPort: 5000
+            - containerPort: 32121
