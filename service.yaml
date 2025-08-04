@@ -8,6 +8,6 @@ spec:
   selector:
     app: money-bot
   ports:
-    - port: 5000
-      targetPort: 5000
+    - port: 32121
+      targetPort: 32121
       # nodePort: 31212
