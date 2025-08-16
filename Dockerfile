@@ -14,3 +14,4 @@ ARG API_KEY
 ENV APP_ENV=$APP_ENV
 ENV API_KEY=$API_KEY
 ENTRYPOINT [ "python3 main.py" ]
+# test webhook
