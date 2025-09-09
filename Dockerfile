@@ -1,17 +1,20 @@
-FROM python:3.13-alpine3.21
+# Use a slim Python image
+FROM python:3.11-slim
 
-SHELL ["/bin/bash", "-c"]
+# Set working directory inside container
+WORKDIR /app
 
-RUN git clone https://github.com/roilevi01/MoneyBot.git
-RUN cd MoneyBot
+# Copy project files
+COPY . .
 
-RUN apt-get update && apt-get install -y 
-COPY  requirements.txt .
-RUN pip install -r requirements.txt
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && pip install -r requirements.txt
 
-ARG APP_ENV
-ARG API_KEY
-ENV APP_ENV=$APP_ENV
-ENV API_KEY=$API_KEY
-ENTRYPOINT [ "python3 main.py" ]
-# test webhook
+# Set environment variable for Flask (לא חובה כאן אבל לא מזיק)
+ENV PORT=8080
+
+# Expose port for Flask or other HTTP server
+EXPOSE 8080
+
+# Run the main script
+CMD ["python", "main.py"]

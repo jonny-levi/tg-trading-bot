@@ -1,0 +1,9 @@
+requests
+websocket-client
+python-dotenv
+Flask
+gunicorn
+pytz
+vaderSentiment
+youtube-transcript-api
+google-api-python-client

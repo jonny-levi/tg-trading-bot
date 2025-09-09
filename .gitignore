@@ -1,0 +1,25 @@
+# קבצי פייתון זמניים
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+
+# קבצי סביבה
+.env
+
+# קבצי משתמש רגישים
+subscribers.json
+
+# לוגים
+*.log
+bot_errors.log
+
+# קבצי מערכת
+.DS_Store
+Thumbs.db
+
+# קבצי וירטואל-אנביירומנט (אם תעבוד מקומית עם venv)
+venv/
+.envrc
