@@ -1,109 +1,114 @@
-# 📈 MoneyBot - Real-Time Microcap Stock Scanner Bot
+# MoneyBot — Telegram Trading Alert Bot
 
-MoneyBot is a real-time stock monitoring bot built in Python. It tracks microcap stocks (under $1B market cap) listed on the US exchange using the Finnhub API, analyzes sudden price movements, and sends Telegram alerts with trading recommendations and same-day news headlines.
+## Overview
 
----
+MoneyBot is a Python Telegram bot for monitoring US microcap trading candidates. It uses Finnhub market data, optional YouTube-derived watchlists, WebSocket price streams, candle/metrics polling, and Telegram alerts to surface momentum events and same-day news.
 
-## ⚡ Features
+> This project is an alerting and automation tool, not financial advice. Validate any strategy independently before trading.
 
-- 🔍 Scans microcap stocks in real time via WebSocket
-- 📈 Detects sudden price changes and calculates percent change
-- 📊 Calculates average price and analyzes momentum
-- 🧠 Generates trading suggestions based on price behavior
-- 📰 Fetches same-day news (max 3 headlines)
-- 📤 Sends formatted alerts to a Telegram group or channel
-- 💻 Designed for day traders who value speed and accuracy
-- 🔐 API keys are stored securely using environment variables
-- ☁️ Optimized to run on Railway cloud infrastructure
+## Features
 
----
+- Scans US microcap candidates through Finnhub.
+- Optional YouTube watchlist discovery from configured channel IDs.
+- Real-time Finnhub WebSocket stream for selected symbols.
+- Metrics polling for volume, VWAP, high-of-day, and related alert conditions.
+- Telegram alert delivery for bot startup, candidate lists, market events, and errors.
+- Same-day news integration and recommendation helpers.
+- Flask keep-alive endpoint for hosted runtimes.
+- Dockerfile, Fly.io config, GitHub Actions, and Kubernetes manifests included.
 
-## 🛠 Tech Stack
+## Architecture / Structure
 
-- Python 3
-- Finnhub API
-- Telegram Bot API
-- WebSocket (via `websocket-client`)
-- Railway (Deployment)
-- Multithreading + Logging
+```text
+main.py                    Main orchestration entrypoint
+config.py                  Environment-backed configuration
+stock_fetcher.py           Finnhub symbol/candidate and quote helpers
+websocket_handler.py       Real-time Finnhub WebSocket event handling
+metrics_service.py         Polling metrics and alert conditions
+news_service.py            News lookup helpers
+recommendation.py          Recommendation/summary logic
+telegram_service.py        Telegram Bot API sender
+youtube_watchlist.py       Optional YouTube watchlist extraction
+keep_alive.py              Small Flask keep-alive web server
+webhook_server.py          Flask webhook endpoint variant
+Dockerfile                 Container image for hosted deployment
+fly.toml                   Fly.io deployment config
+Manifests/                 Kubernetes namespace/deployment/service manifests
+.github/workflows/         Automation for deployment/run flows
+```
 
----
+## Prerequisites
 
-## 🚀 Installation
+- Python 3.10+ recommended.
+- Finnhub API key.
+- Telegram bot token and target chat/channel ID.
+- Optional: YouTube Data API key and channel IDs.
+- Optional deployment target: Docker, Fly.io, or Kubernetes.
 
-1. **Clone the repository:**
+## Getting Started
 
 ```bash
-git clone https://github.com/your-username/MoneyBot.git
-cd MoneyBot
-Install dependencies:
-
-bash
-Copy
-Edit
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-Set environment variables (in .env file or platform dashboard):
 
-ini
-Copy
-Edit
-FINNHUB_API_KEY=your_finnhub_key
-BOT_TOKEN=your_telegram_bot_token
-CHAT_ID=your_telegram_chat_id
-APP_URL=https://your-subdomain.up.railway.app
-Run the bot locally:
-
-bash
-Copy
-Edit
+export FINNHUB_API_KEY="<finnhub-api-key>"
+export BOT_TOKEN="<telegram-bot-token>"
+export CHAT_ID="<telegram-chat-id>"
+export APP_URL="http://localhost:8080"
 python main.py
-🧠 How It Works
-The bot fetches a list of US microcap stocks.
+```
 
-For each stock, it checks market cap, opening price, and current price.
+The bot starts a keep-alive web server, selects trading candidates, connects to real-time data streams, starts metrics polling, and sends status/alert messages to Telegram.
 
-Subscribes via WebSocket to real-time price updates.
+## Configuration
 
-For each update:
+| Variable | Required | Description |
+| --- | --- | --- |
+| `FINNHUB_API_KEY` | Yes | Finnhub API key for symbols, quotes, metrics, news, and WebSocket. |
+| `BOT_TOKEN` | Yes | Telegram bot token. |
+| `CHAT_ID` | Yes for alerts | Telegram chat/channel ID for outgoing messages. |
+| `APP_URL` | Recommended for hosted runtimes | Public URL used by hosting/keep-alive flows. |
+| `YT_API_KEY` | Optional | YouTube Data API key for watchlist discovery. |
+| `YT_CHANNEL_IDS` | Optional | Comma-separated YouTube channel IDs. |
+| `YOUTUBE_LOOKBACK` | Optional | Number of recent videos to inspect per channel. Defaults to `10`. |
 
-Calculates percent change and moving average.
+Use a local `.env` file for development if desired, but do not commit it.
 
-Sends alerts only once per symbol/percent range.
+## Deployment / Operations
 
-Includes real-time recommendation and up to 3 fresh news headlines.
+### Docker
 
-📬 Example Alert Format
-yaml
-Copy
-Edit
-🚨 Hot Stock!
-📈 SYMBOL
-💰 Price: $4.95
-📉 Open: $4.50
-⚖️ Avg: $4.62
-📊 Change: +10.00%
-🧠 Recommendation: Positive momentum – consider entry
-📰 News Today:
-• 🔹 Company reports record Q2 earnings
-• 🔹 Stock upgraded by major analyst
-• 🔹 CEO announces strategic expansion
-🔗 [Chart View on TradingView]
-🤖 Deploying to Railway
-Connect this repo to Railway
+```bash
+docker build -t tg-trading-bot:latest .
+docker run --rm \
+  -e FINNHUB_API_KEY="<finnhub-api-key>" \
+  -e BOT_TOKEN="<telegram-bot-token>" \
+  -e CHAT_ID="<telegram-chat-id>" \
+  tg-trading-bot:latest
+```
 
-Set your environment variables in the project settings
+### Fly.io
 
-Define Procfile:
+The repository includes `fly.toml` and `.github/workflows/fly-deploy.yml`. Configure secrets in Fly/GitHub Actions rather than storing them in the repo.
 
-makefile
-Copy
-Edit
-worker: python main.py
-Deploy and monitor logs via the Railway dashboard.
+### Kubernetes
 
-📄 License
-This project is for educational and personal use. Always conduct your own due diligence before making investment decisions.
+Review and adjust `Manifests/` for namespace, image, and secret references, then apply:
 
-💬 Author
-Developed by Roi Levi
-📧 roilevi2212@gmail.com
+```bash
+kubectl apply -f Manifests/
+kubectl logs -n <namespace> deploy/<deployment-name> -f
+```
+
+## Security Notes
+
+- Keep all API keys and bot tokens in environment variables or platform secrets.
+- Trading alerts can be wrong or delayed; do not rely on the bot as a sole decision-maker.
+- Watch Finnhub and YouTube API rate limits.
+- Avoid logging full tokens or sensitive Telegram chat details.
+- Validate deployment manifests before exposing any webhook or keep-alive endpoint publicly.
+
+## Author
+
+Jonny Levi — [jonny-levi](https://github.com/jonny-levi)
